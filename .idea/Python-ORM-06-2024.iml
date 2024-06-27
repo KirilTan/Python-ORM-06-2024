@@ -5,7 +5,7 @@
       <excludeFolder url="file://$MODULE_DIR$/00_orm_introduction/mysite/.venv" />
       <excludeFolder url="file://$MODULE_DIR$/01_django_models_basics/lab/.venv" />
     </content>
-    <orderEntry type="inheritedJdk" />
+    <orderEntry type="jdk" jdkName="Python 3.11 (lab)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
 </module>
