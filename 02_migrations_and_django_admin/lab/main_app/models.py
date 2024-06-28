@@ -10,3 +10,6 @@ class Product(models.Model):
     created_on = models.DateTimeField(auto_now_add=True, editable=False)
     last_edited = models.DateTimeField(auto_now=True, editable=False)
     barcode = models.IntegerField()
+
+    def __str__(self):
+        return f"{self.name}"
