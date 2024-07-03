@@ -10,6 +10,7 @@ django.setup()
 from main_app.models import Student
 
 
+# 01
 def add_students():
     Student.objects.create(
         student_id='FC5204',
@@ -45,6 +46,21 @@ def add_students():
     )
 
 
+# 02
+def get_students_info():
+    result = []
+    all_students = Student.objects.all()
+    for student in all_students:
+        result.append(f"Student №{student.student_id}: {student.first_name} {student.last_name}; Email: {student.email}")
+
+    return "\n".join(result)
+
+
 # Run and print your queries
-add_students()
-print(Student.objects.all())
+
+# 01
+# add_students()
+# print(Student.objects.all())
+
+# 02
+# print(get_students_info())
