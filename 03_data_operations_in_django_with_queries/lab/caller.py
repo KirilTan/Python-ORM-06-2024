@@ -56,6 +56,18 @@ def get_students_info():
     return "\n".join(result)
 
 
+# 03
+def update_students_emails():
+    all_students = Student.objects.all()
+    for s in all_students:
+        s.email = s.email.replace(s.email.split('@')[1], 'uni-students.com')
+    Student.objects.bulk_update(all_students, ['email'])
+
+
+# 04
+def truncate_students():
+    Student.objects.all().delete()
+
 # Run and print your queries
 
 # 01
@@ -64,3 +76,13 @@ def get_students_info():
 
 # 02
 # print(get_students_info())
+
+# 03
+# update_students_emails()
+# for student in Student.objects.all():
+#     print(student.email)
+
+# 04
+# truncate_students()
+# print(Student.objects.all())
+# print(f"Number of students: {Student.objects.count()}")
