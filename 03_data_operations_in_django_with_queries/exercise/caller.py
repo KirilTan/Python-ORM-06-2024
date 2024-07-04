@@ -7,7 +7,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "orm_skeleton.settings")
 django.setup()
 
 # Import your models here
-from main_app.models import Pet, Artifact, Location, Car, Task
+from main_app.models import Pet, Artifact, Location, Car, Task, HotelRoom
 
 
 # Create queries within functions
@@ -175,6 +175,60 @@ def encode_and_replace(text: str, task_title: str) -> None:
     Task.objects.bulk_update(tasks_to_encode, ['description'])
 
 
+def get_deluxe_rooms() -> str:
+    """
+    Returns all deluxe rooms with their room number and price per night, only if their id is even as a string as follows
+    """
+    all_deluxe_rooms = HotelRoom.objects.filter(room_type='Deluxe')
+    even_id_deluxe_rooms = [str(room) for room in all_deluxe_rooms if room.id % 2 == 0]
+
+    return '\n'.join(even_id_deluxe_rooms)
+
+
+def increase_room_capacity() -> None:
+    """
+    Increases the capacity of every reserved room with the capacity of the previous room in the database, ordered by id
+
+    If there is only one room, or it is the first room increase the capacity with its current id number.
+    If the room is not reserved, continue to the next one.
+    Increase the capacity of the reserved room if the previous one is not reserved.
+    """
+    rooms = HotelRoom.objects.all().order_by('id')
+
+    previous_room_capacity = None
+
+    for room in rooms:
+        if not room.is_reserved:
+            continue
+
+        if previous_room_capacity is not None:
+            room.capacity += previous_room_capacity
+        else:
+            room.capacity += room.id
+
+        previous_room_capacity = room.capacity
+
+    HotelRoom.objects.bulk_update(rooms, ['capacity'])
+
+
+def reserve_first_room() -> None:
+    """
+    Reserves the first room in the database.
+    """
+    first_room = HotelRoom.objects.first()
+    first_room.is_reserved = True
+    first_room.save()
+
+
+def delete_last_room() -> None:
+    """
+    Deletes the last room in the database if it is not reserved.
+    """
+    last_room = HotelRoom.objects.last()
+    if not last_room.is_reserved:
+        last_room.delete()
+
+
 # Run and print your queries
 
 # print(create_pet('Buddy', 'Dog'))
@@ -198,3 +252,8 @@ def encode_and_replace(text: str, task_title: str) -> None:
 # print(Task.objects.get(title='Simple Task').description)
 # print(show_unfinished_tasks())
 # complete_odd_tasks()
+
+
+# print(get_deluxe_rooms())
+# reserve_first_room()
+# print(HotelRoom.objects.get(room_number=401).is_reserved)
