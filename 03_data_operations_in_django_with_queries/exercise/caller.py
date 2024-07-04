@@ -1,12 +1,13 @@
 import os
 import django
+from django.db.models import QuerySet
 
 # Set up Django
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "orm_skeleton.settings")
 django.setup()
 
 # Import your models here
-from main_app.models import Pet, Artifact
+from main_app.models import Pet, Artifact, Location
 
 
 # Create queries within functions
@@ -72,7 +73,40 @@ def delete_all_artifacts() -> None:
     Artifact.objects.all().delete()
 
 
+def show_all_locations() -> str:
+    """
+    Returns the name and the population for every location, ordered by id(descending) as a string.
+    """
+    locations = Location.objects.all().order_by('-id')
+    return '\n'.join(f"{location.name} has a population of {location.population}!" for location in locations)
+
+
+def new_capital() -> None:
+    """
+    Makes the first location capital.
+    """
+
+    first_location = Location.objects.first()
+    first_location.is_capital = True
+    first_location.save()
+
+
+def get_capitals() -> QuerySet:
+    """
+    Returns the locations which are capitals (as a queryset with data only for the name of the location).
+    """
+    return Location.objects.filter(is_capital=True).values('name')
+
+
+def delete_first_location() -> None:
+    """
+    Deletes the first location from the database.
+    """
+    Location.objects.first().delete()
+
+
 # Run and print your queries
+
 # print(create_pet('Buddy', 'Dog'))
 # print(create_pet('Whiskers', 'Cat'))
 # print(create_pet('Rocky', 'Hamster'))
@@ -81,3 +115,8 @@ def delete_all_artifacts() -> None:
 # artifact_object = Artifact.objects.get(name='Ancient Sword')
 # rename_artifact(artifact_object, 'Ancient Shield')
 # print(artifact_object.name)
+
+# print(show_all_locations())
+# print(new_capital())
+# print(get_capitals())
+# print(type(get_capitals()))
