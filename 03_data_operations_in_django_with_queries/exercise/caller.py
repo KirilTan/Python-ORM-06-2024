@@ -7,7 +7,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "orm_skeleton.settings")
 django.setup()
 
 # Import your models here
-from main_app.models import Pet, Artifact, Location
+from main_app.models import Pet, Artifact, Location, Car
 
 
 # Create queries within functions
@@ -105,6 +105,36 @@ def delete_first_location() -> None:
     Location.objects.first().delete()
 
 
+def apply_discount() -> None:
+    """
+    Modifies the price with a discount field for every car. Discount is the sum of the digits of the year as a
+    percentage (7% for 2014). The newly generated price is saved in the price with discount field. The original price is
+    not modified.
+    """
+    all_cars = Car.objects.all()
+
+    for car in all_cars:
+        discount_percentage = sum(int(digit) for digit in str(car.year))
+        car.price_with_discount = float(car.price) * (1 - discount_percentage / 100)
+
+    Car.objects.bulk_update(all_cars, ['price_with_discount'])
+
+
+def get_recent_cars() -> QuerySet:
+    """
+    Returns all cars manufactured since the year 2020 (exclusive),
+    (as a queryset with data for the model and the price with a discount for the recent cars).
+    """
+    return Car.objects.filter(year__gt=2020).values('model', 'price_with_discount')
+
+
+def delete_last_car() -> None:
+    """
+    Deletes the last car from the database.
+    """
+    Car.objects.last().delete()
+
+
 # Run and print your queries
 
 # print(create_pet('Buddy', 'Dog'))
@@ -120,3 +150,6 @@ def delete_first_location() -> None:
 # print(new_capital())
 # print(get_capitals())
 # print(type(get_capitals()))
+
+# apply_discount()
+# print(get_recent_cars())
