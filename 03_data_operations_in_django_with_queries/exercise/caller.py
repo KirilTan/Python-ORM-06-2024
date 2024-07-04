@@ -7,7 +7,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "orm_skeleton.settings")
 django.setup()
 
 # Import your models here
-from main_app.models import Pet, Artifact, Location, Car
+from main_app.models import Pet, Artifact, Location, Car, Task
 
 
 # Create queries within functions
@@ -135,6 +135,46 @@ def delete_last_car() -> None:
     Car.objects.last().delete()
 
 
+def show_unfinished_tasks() -> str:
+    """
+    Returns all incomplete tasks with their title and due date as a string as follows:
+
+    "Task - {title_1} needs to be done until {due_date_1}!
+    ...
+    Task - {title_N} needs to be done until {due_date_N}!"
+    """
+    all_incomplete_tasks = Task.objects.filter(is_finished=False)
+    return '\n'.join(
+        f"Task - {task.title} needs to be done until {task.due_date}!"
+        for task in all_incomplete_tasks)
+
+
+def complete_odd_tasks() -> None:
+    """
+    Makes every task with an odd id finished.
+    """
+    all_tasks = Task.objects.all()
+    for task in all_tasks:
+        if task.id % 2 != 0:
+            task.is_finished = True
+            task.save()
+
+
+def encode_and_replace(text: str, task_title: str) -> None:
+    """
+    Encodes the text and replaces it with the description for all tasks with the given title.
+    The encoded text should be 3 ASCII symbols bellow the given one.
+    """
+    decoded_text = ''
+    for letter in text:
+        decoded_text += chr(ord(letter) - 3)
+
+    tasks_to_encode = Task.objects.filter(title=task_title)
+    for task in tasks_to_encode:
+        task.description = decoded_text
+    Task.objects.bulk_update(tasks_to_encode, ['description'])
+
+
 # Run and print your queries
 
 # print(create_pet('Buddy', 'Dog'))
@@ -153,3 +193,8 @@ def delete_last_car() -> None:
 
 # apply_discount()
 # print(get_recent_cars())
+
+# encode_and_replace("Zdvk#wkh#glvkhv$", "Simple Task")
+# print(Task.objects.get(title='Simple Task').description)
+# print(show_unfinished_tasks())
+# complete_odd_tasks()
