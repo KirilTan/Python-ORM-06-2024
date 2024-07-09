@@ -1,12 +1,15 @@
 import os
 import django
+from django.db.models import QuerySet
 
 # Set up Django
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "orm_skeleton.settings")
 django.setup()
 
+
 # Import your models
 from main_app.models import Author, Book, Review
+
 
 # Create and check models
 def add_records_to_database():
@@ -57,5 +60,153 @@ def add_records_to_database():
     Review.objects.bulk_create(reviews)
     return "Records added to tables Authors, Books and Reviews"
 
+
+def find_books_by_genre_and_language(book_genre: str, book_language: str) -> QuerySet:
+    """
+    Returns a QuerySet of all books that concurrently satisfy both specified criteria - genre and language.
+    """
+
+    books = Book.objects.filter(
+        genre=book_genre,
+        language=book_language
+    )
+
+    return books
+
+
+def find_authors_nationalities() -> str:
+    """
+    Returns information about all authors whose nationalities are not Null
+    """
+    authors = Author.objects.exclude(nationality__isnull=True)
+    return '\n'.join(
+        [
+            f'{str(author)} is {author.nationality}' for author in authors
+        ]
+    )
+
+
+def order_books_by_year() -> str:
+    """
+    Returns information about all books, sorted by their publication year in ascending order.
+    If two or more books are published in the same year they are ordered by title in ascending order (alphabetically)
+    """
+    books = Book.objects.all().order_by('publication_year', 'title')
+    return '\n'.join(
+        [
+            f'{book.publication_year} year: {str(book)}' for book in books
+        ]
+    )
+
+
+def delete_review_by_id(id: int) -> str:
+    """
+    Deletes the review's record by the given ID and returns information about the deleted review
+
+    Args:
+        id (int): The ID of the review to be deleted
+    Returns:
+        str: Information about the deleted review
+    """
+    review_to_delete = Review.objects.get(id=id)
+    review_to_delete.delete()
+
+    message = f"Review by {review_to_delete.reviewer_name} was deleted"
+    return message
+
+
+def filter_authors_by_nationalities(nationality: str) -> str:
+    """
+    Returns information about each author's biography. Authors are filtered with the given nationality and ordered
+    by first name and last name
+
+    Args:
+        nationality (str): The nationality of the authors to be filtered
+    Returns:
+        str: Information about each author's biography
+    """
+    authors = Author.objects.filter(nationality=nationality).order_by('first_name', 'last_name')
+
+    result = []
+    for author in authors:
+        result.append(author.biography) if author.biography else result.append(f"{str(author)}")
+
+    return '\n'.join(result)
+
+
+def filter_authors_by_birth_year(start_year: int, end_year: int) -> str:
+    """
+    Filters the authors who are born between the two given years (both inclusive) and orders them by birthdate in
+    descending order. After that it returns information about each found author.
+
+    Args:
+        start_year (int): The start year of the birth year range
+        end_year (int): The end year of the birth year range
+    Returns:
+        str: Information about each author's biography
+    """
+    authors = Author.objects.filter(birth_date__year__range=(start_year, end_year)).order_by('-birth_date')
+
+    result = '\n'.join(
+        [
+            f"{author.birth_date}: {str(author)}" for author in authors
+        ]
+    )
+    return result
+
+
+def change_reviewer_name(reviewer_name: str, new_reviewer_name: str) -> QuerySet:
+    """
+    Changes all occurrences of the reviewer's name with the new name
+
+    Args:
+        reviewer_name (str): The old reviewer name
+        new_reviewer_name (str): The new reviewer name
+    Returns:
+        QuerySet: The updated reviews
+    """
+    Review.objects.filter(reviewer_name=reviewer_name).update(reviewer_name=new_reviewer_name)
+    return Review.objects.all()
+
 # Run and print your queries
+
 # print(add_records_to_database())
+
+# print(find_books_by_genre_and_language("Romance", "English"))
+# print(find_books_by_genre_and_language("Poetry", "Spanish"))
+# print(find_books_by_genre_and_language("Mystery", "English"))
+
+# print(find_authors_nationalities())
+
+# print(order_books_by_year())
+
+# print(delete_review_by_id(4))
+# print(delete_review_by_id(1))
+# print(delete_review_by_id(8))
+
+# print("American authors:")
+# print(filter_authors_by_nationalities('American'))
+# print()
+# print("British authors:")
+# print(filter_authors_by_nationalities('British'))
+# print()
+# print("Authors with no nationalities:")
+# print(filter_authors_by_nationalities(None))
+
+# print("Authors born between 1980 and 2000:")
+# print(filter_authors_by_birth_year(1980, 2000))
+# print()
+# print("Authors born between 1950 and 1960:")
+# print(filter_authors_by_birth_year(1950, 1960))
+# print()
+# print("Authors born between 2000 and 2010:")
+# print(filter_authors_by_birth_year(2000, 2010))
+
+# print("Change Alice Johnson to A.J.:")
+# print(change_reviewer_name("Alice Johnson", "A.J."))
+# print()
+# print("Change Bob Wilson to Bobby W.:")
+# print(change_reviewer_name("Bob Wilson", "Bobby W."))
+# print()
+# print("Change A.J. to A. Johnson:")
+# print(change_reviewer_name("A.J.", "A. Johnson"))
