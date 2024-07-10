@@ -121,6 +121,74 @@ def delete_inexpensive_laptops() -> None:
     laptops_to_delete.delete()
 
 
+def bulk_create_chess_players(args: List[ChessPlayer]) -> None:
+    """
+    Bulk creates one or more new instances of the model "ChessPlayer" class and saves them into the database.
+
+    Parameters:
+        args (List[ChessPlayer]): A list of ChessPlayer instances to be created
+    Returns:
+        None
+    """
+    ChessPlayer.objects.bulk_create(args)
+
+
+def delete_chess_players() -> None:
+    """
+    Deletes all the chess players that have "no title".
+    """
+    ChessPlayer.objects.filter(title='no title').delete()
+
+
+def change_chess_games_won() -> None:
+    """
+    Changes the games won for the players with a "GM" title to 30.
+    """
+    ChessPlayer.objects.filter(title='GM').update(games_won=30)
+
+
+def change_chess_games_lost() -> None:
+    """
+    Changes the games lost for the players with "no title" to 25.
+    """
+    ChessPlayer.objects.filter(title='no title').update(games_lost=25)
+
+
+def change_chess_games_drawn() -> None:
+    """
+    Changes the games drawn for every player to 10.
+    """
+    ChessPlayer.objects.update(games_drawn=10)
+
+
+def grand_chess_title_GM() -> None:
+    """
+    Changes the title to "GM" for every player with a rating greater than or equal to 2400.
+    """
+    ChessPlayer.objects.filter(rating__gte=2400).update(title='GM')
+
+
+def grand_chess_title_IM() -> None:
+    """
+    Changes the title to "IM" for every player with a rating between 2399 and 2300 (both inclusive).
+    """
+    ChessPlayer.objects.filter(rating__range=(2300, 2399)).update(title='IM')
+
+
+def grand_chess_title_FM() -> None:
+    """
+    Changes the title to "FM" for every player with a rating between 2299 and 2200 (both inclusive).
+    """
+    ChessPlayer.objects.filter(rating__range=(2200, 2299)).update(title='FM')
+
+
+def grand_chess_title_regular_player() -> None:
+    """
+    Changes the title to "regular player" for every player with a rating between 2199 and 0 (both inclusive).
+    """
+    ChessPlayer.objects.filter(rating__range=(0, 2199)).update(title='regular player')
+
+
 # Run and print your queries
 
 # artwork1 = ArtworkGallery(artist_name='Vincent van Gogh', art_name='Starry Night', rating=4, price=1200000.0)
@@ -171,3 +239,31 @@ def delete_inexpensive_laptops() -> None:
 #
 # print(asus_laptop.storage)
 # print(lenovo_laptop.operation_system)
+
+# player1 = ChessPlayer(
+#     username='Player1',
+#     title='no title',
+#     rating=2200,
+#     games_played=50,
+#     games_won=20,
+#     games_lost=25,
+#     games_drawn=5,
+# )
+# player2 = ChessPlayer(
+#     username='Player2',
+#     title='IM',
+#     rating=2350,
+#     games_played=80,
+#     games_won=40,
+#     games_lost=25,
+#     games_drawn=15,
+# )
+#
+# # Call the bulk_create_chess_players function
+# bulk_create_chess_players([player1, player2])
+#
+# # Call the delete_chess_players function
+# delete_chess_players()
+#
+# # Check that the players are deleted
+# print("Number of Chess Players after deletion:", ChessPlayer.objects.count())
