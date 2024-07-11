@@ -4,7 +4,7 @@ from typing import List
 import django
 from django.db.models import Case, When, Value, QuerySet
 
-from main_app.choices import LaptopOperationSystemChoices, MealTypeChoices
+from main_app.choices import LaptopOperationSystemChoices, MealTypeChoices, DungeonDifficultyChoices
 
 # Set up Django
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "orm_skeleton.settings")
@@ -260,6 +260,100 @@ def delete_lunch_and_snack_meals() -> None:
     ).delete()
 
 
+def show_hard_dungeons() -> str:
+    """
+    Returns a string with only the "Hard" dungeons, ordered by location (descending)
+    """
+    hard_dungeons = Dungeon.objects.filter(difficulty=DungeonDifficultyChoices.HARD).order_by('-location')
+    return '\n'.join(str(dungeon) for dungeon in hard_dungeons)
+
+
+def bulk_create_dungeons(args: List[Dungeon]) -> None:
+    """
+    Creates one or more new instances of the "Dungeon" class
+
+    Parameters:
+        args (List[Dungeon]): A list of Dungeon instances to be created
+    """
+    Dungeon.objects.bulk_create(args)
+
+
+def update_dungeon_names() -> None:
+    """
+    Updates the name for all dungeons.
+    • If the dungeon difficulty is "Easy", update the dungeon name to "The Erased Thombs".
+    • If the dungeon difficulty is "Medium", update the dungeon name to "The Coral Labyrinth".
+    • If the dungeon difficulty is "Hard", update the dungeon name to "The Lost Haunt".
+    """
+    Dungeon.objects.update(
+        name=Case(
+            When(difficulty=DungeonDifficultyChoices.EASY, then=Value('The Erased Thombs')),
+            When(difficulty=DungeonDifficultyChoices.MEDIUM, then=Value('The Coral Labyrinth')),
+            When(difficulty=DungeonDifficultyChoices.HARD, then=Value('The Lost Haunt')),
+        )
+    )
+
+
+def update_dungeon_bosses_health() -> None:
+    """
+    Changes the boss health to 500 for all dungeons except for the ones that have difficulty "Easy".
+    """
+    Dungeon.objects.exclude(
+        difficulty=DungeonDifficultyChoices.EASY
+    ).update(boss_health=500)
+
+
+def update_dungeon_recommended_levels() -> None:
+    """
+    Updates the recommended level for all dungeons
+
+    • If the dungeon difficulty is "Easy", update the recommended level to 25.
+    • If the dungeon difficulty is "Medium", update the recommended level to 50.
+    • If the dungeon difficulty is "Hard", update the recommended level to 75.
+    """
+    Dungeon.objects.update(
+        recommended_level=Case(
+            When(difficulty=DungeonDifficultyChoices.EASY, then=Value(25)),
+            When(difficulty=DungeonDifficultyChoices.MEDIUM, then=Value(50)),
+            When(difficulty=DungeonDifficultyChoices.HARD, then=Value(75)),
+        )
+    )
+
+
+def update_dungeon_rewards() -> None:
+    """
+    Updates the difficulty for all dungeons.
+
+    • If the dungeon boss's health is 500, update the dungeon reward to "1000 Gold".
+    • If the dungeon's location starts with "E", update the reward to "New dungeon unlocked".
+    • If the dungeon's location ends with "s", update the reward to "Dragonheart Amulet".
+    """
+    Dungeon.objects.update(
+        reward=Case(
+            When(boss_health=500, then=Value('1000 Gold')),
+            When(location__startswith='E', then=Value('New dungeon unlocked')),
+            When(location__endswith='s', then=Value('Dragonheart Amulet')),
+        )
+    )
+
+
+def set_new_locations() -> None:
+    """
+    Updates the location for all dungeons.
+
+    • If the recommended level is 25, update the dungeon location to "Enchanted Maze".
+    • If the recommended level is 50, update the dungeon location to "Grimstone Mines".
+    • If the recommended level is 75, update the dungeon location to "Shadowed Abyss".
+    """
+    Dungeon.objects.update(
+        location=Case(
+            When(recommended_level=25, then=Value('Enchanted Maze')),
+            When(recommended_level=50, then=Value('Grimstone Mines')),
+            When(recommended_level=75, then=Value('Shadowed Abyss')),
+        )
+    )
+
+
 # Run and print your queries
 
 # artwork1 = ArtworkGallery(artist_name='Vincent van Gogh', art_name='Starry Night', rating=4, price=1200000.0)
@@ -371,3 +465,46 @@ def delete_lunch_and_snack_meals() -> None:
 # print("Meal 1 Preparation Time:", meal1.preparation_time)
 # print("Meal 2 Chef:", meal2.chef)
 # print("Meal 2 Preparation Time:", meal2.preparation_time)
+
+# Create two instances
+dungeon1 = Dungeon(
+    name="Dungeon 1",
+    boss_name="Boss 1",
+    boss_health=1000,
+    recommended_level=75,
+    reward="Gold",
+    location="Eternal Hell",
+    difficulty="Hard",
+)
+
+dungeon2 = Dungeon(
+    name="Dungeon 2",
+    boss_name="Boss 2",
+    boss_health=400,
+    recommended_level=25,
+    reward="Experience",
+    location="Crystal Caverns",
+    difficulty="Easy",
+)
+
+# Bulk save the instances
+bulk_create_dungeons([dungeon1, dungeon2])
+
+# Update boss's health
+update_dungeon_bosses_health()
+
+# Show hard dungeons
+hard_dungeons_info = show_hard_dungeons()
+print(hard_dungeons_info)
+
+# Change dungeon names based on difficulty
+update_dungeon_names()
+dungeons = Dungeon.objects.order_by('boss_health')
+print(dungeons[0].name)
+print(dungeons[1].name)
+
+# Change the dungeon rewards
+update_dungeon_rewards()
+dungeons = Dungeon.objects.order_by('boss_health')
+print(dungeons[0].reward)
+print(dungeons[1].reward)

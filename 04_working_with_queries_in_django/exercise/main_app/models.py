@@ -1,6 +1,6 @@
 from django.db import models
 
-from main_app.choices import LaptopBrandChoices, LaptopOperationSystemChoices, MealTypeChoices
+from main_app.choices import LaptopBrandChoices, LaptopOperationSystemChoices, MealTypeChoices, DungeonDifficultyChoices
 
 
 # Create your models here.
@@ -25,19 +25,17 @@ class Meal(models.Model):
 
 
 class Dungeon(models.Model):
-    DIFFICULTY_CHOICES = (
-        ('Easy', 'Easy'),
-        ('Medium', 'Medium'),
-        ('Hard', 'Hard'),
-    )
-
     name = models.CharField(max_length=100)
-    difficulty = models.CharField(max_length=10, choices=DIFFICULTY_CHOICES)
+    difficulty = models.CharField(max_length=10, choices=DungeonDifficultyChoices.choices)
     location = models.CharField(max_length=100)
     boss_name = models.CharField(max_length=100)
     recommended_level = models.PositiveIntegerField()
     boss_health = models.PositiveIntegerField()
     reward = models.TextField()
+
+    def __str__(self):
+        text = f"{self.name} is guarded by {self.boss_name} who has {self.boss_health} health points!"
+        return text
 
 
 class Workout(models.Model):

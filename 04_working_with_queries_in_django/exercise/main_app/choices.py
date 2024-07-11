@@ -21,3 +21,9 @@ class MealTypeChoices(models.TextChoices):
     LUNCH = 'Lunch', 'Lunch'
     DINNER = 'Dinner', 'Dinner'
     SNACK = 'Snack', 'Snack'
+
+
+class DungeonDifficultyChoices(models.TextChoices):
+    EASY = 'Easy', 'Easy'
+    MEDIUM = 'Medium', 'Medium'
+    HARD = 'Hard', 'Hard'
