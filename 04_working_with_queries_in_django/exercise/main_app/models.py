@@ -1,6 +1,7 @@
 from django.db import models
 
-from main_app.choices import LaptopBrandChoices, LaptopOperationSystemChoices, MealTypeChoices, DungeonDifficultyChoices
+from main_app.choices import LaptopBrandChoices, LaptopOperationSystemChoices, MealTypeChoices, \
+    DungeonDifficultyChoices, WorkoutTypeChoices
 
 
 # Create your models here.
@@ -39,20 +40,15 @@ class Dungeon(models.Model):
 
 
 class Workout(models.Model):
-    WORKOUT_TYPE_CHOICES = (
-        ('Cardio', 'Cardio'),
-        ('Strength', 'Strength'),
-        ('Yoga', 'Yoga'),
-        ('CrossFit', 'CrossFit'),
-        ('Calisthenics', 'Calisthenics'),
-    )
-
     name = models.CharField(max_length=200)
-    workout_type = models.CharField(max_length=20, choices=WORKOUT_TYPE_CHOICES)
+    workout_type = models.CharField(max_length=20, choices=WorkoutTypeChoices.choices)
     duration = models.CharField(max_length=30)
     difficulty = models.CharField(max_length=50)
     calories_burned = models.PositiveIntegerField()
     instructor = models.CharField(max_length=100)
+
+    def __str__(self):
+        return f"{self.name} from {self.workout_type} type has {self.difficulty} difficulty!"
 
 
 class ArtworkGallery(models.Model):

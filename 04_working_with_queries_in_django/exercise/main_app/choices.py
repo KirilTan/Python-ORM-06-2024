@@ -27,3 +27,11 @@ class DungeonDifficultyChoices(models.TextChoices):
     EASY = 'Easy', 'Easy'
     MEDIUM = 'Medium', 'Medium'
     HARD = 'Hard', 'Hard'
+
+
+class WorkoutTypeChoices(models.TextChoices):
+    CARDIO = 'Cardio', 'Cardio'
+    STRENGTH = 'Strength', 'Strength'
+    YOGA = 'Yoga', 'Yoga'
+    CROSSFIT = 'CrossFit', 'CrossFit'
+    CALISTHENICS = 'Calisthenics', 'Calisthenics'
