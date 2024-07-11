@@ -1,6 +1,6 @@
 from django.db import models
 
-from main_app.choices import LaptopBrandChoices, LaptopOperationSystemChoices
+from main_app.choices import LaptopBrandChoices, LaptopOperationSystemChoices, MealTypeChoices
 
 
 # Create your models here.
@@ -16,15 +16,8 @@ class ChessPlayer(models.Model):
 
 
 class Meal(models.Model):
-    MEAL_TYPE_CHOICES = (
-        ('Breakfast', 'Breakfast'),
-        ('Lunch', 'Lunch'),
-        ('Dinner', 'Dinner'),
-        ('Snack', 'Snack'),
-    )
-
     name = models.CharField(max_length=100)
-    meal_type = models.CharField(max_length=10, choices=MEAL_TYPE_CHOICES)
+    meal_type = models.CharField(max_length=10, choices=MealTypeChoices.choices)
     preparation_time = models.CharField(max_length=30)
     difficulty = models.PositiveIntegerField()
     calories = models.PositiveIntegerField()

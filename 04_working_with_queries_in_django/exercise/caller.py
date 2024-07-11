@@ -2,8 +2,9 @@ import os
 from typing import List
 
 import django
+from django.db.models import Case, When, Value, QuerySet
 
-from main_app.choices import LaptopOperationSystemChoices
+from main_app.choices import LaptopOperationSystemChoices, MealTypeChoices
 
 # Set up Django
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "orm_skeleton.settings")
@@ -189,6 +190,76 @@ def grand_chess_title_regular_player() -> None:
     ChessPlayer.objects.filter(rating__range=(0, 2199)).update(title='regular player')
 
 
+def set_new_chefs() -> None:
+    """
+    Updates the name for every meal.
+    • If the meal type is "Breakfast", update the chef's name to "Gordon Ramsay".
+    • If the meal type is "Lunch", update the chef's name to "Julia Child".
+    • If the meal type is "Dinner", update the chef's name to "Jamie Oliver".
+    • If the meal type is "Snack", update the chef's name to "Thomas Keller".
+    """
+    Meal.objects.update(
+        chef=Case(
+            When(meal_type=MealTypeChoices.BREAKFAST, then=Value('Gordon Ramsay')),
+            When(meal_type=MealTypeChoices.LUNCH, then=Value('Julia Child')),
+            When(meal_type=MealTypeChoices.DINNER, then=Value('Jamie Oliver')),
+            When(meal_type=MealTypeChoices.SNACK, then=Value('Thomas Keller')),
+        )
+    )
+
+
+def set_new_preparation_times() -> None:
+    """
+    Updates the preparation time for every meal.
+    • If the meal type is "Breakfast", update the preparation time to "10 minutes".
+    • If the meal type is "Lunch", update the preparation time to "12 minutes".
+    • If the meal type is "Dinner", update the preparation time to "15 minutes".
+    • If the meal type is "Snack", update the preparation time to "5 minutes"
+    """
+    Meal.objects.update(
+        preparation_time = Case(
+            When(meal_type=MealTypeChoices.BREAKFAST, then=Value('10 minutes')),
+            When(meal_type=MealTypeChoices.LUNCH, then=Value('12 minutes')),
+            When(meal_type=MealTypeChoices.DINNER, then=Value('15 minutes')),
+            When(meal_type=MealTypeChoices.SNACK, then=Value('5 minutes')),
+        )
+    )
+
+
+def update_low_calorie_meals() -> None:
+    """
+    Changes the calories for the 'Breakfast' and 'Dinner' meals to 400.
+    """
+    Meal.objects.filter(
+        meal_type__in=(MealTypeChoices.BREAKFAST,
+                       MealTypeChoices.DINNER),
+    ).update(
+        calories=400,
+    )
+
+
+def update_high_calorie_meals() -> None:
+    """
+    Changes the calories for the 'Lunch' and 'Snack' meals to 700.
+    """
+    Meal.objects.filter(
+        meal_type__in=(MealTypeChoices.LUNCH,
+                       MealTypeChoices.SNACK),
+    ).update(
+        calories=700,
+    )
+
+
+def delete_lunch_and_snack_meals() -> None:
+    """
+    Deletes all 'Lunch' and 'Snack' meals.
+    """
+    Meal.objects.filter(
+        meal_type__in=(MealTypeChoices.LUNCH,
+                       MealTypeChoices.SNACK),
+    ).delete()
+
+
 # Run and print your queries
 
 # artwork1 = ArtworkGallery(artist_name='Vincent van Gogh', art_name='Starry Night', rating=4, price=1200000.0)
@@ -267,3 +338,36 @@ def grand_chess_title_regular_player() -> None:
 #
 # # Check that the players are deleted
 # print("Number of Chess Players after deletion:", ChessPlayer.objects.count())
+
+# meal1 = Meal.objects.create(
+#     name="Pancakes",
+#     meal_type="Breakfast",
+#     preparation_time="20 minutes",
+#     difficulty=3,
+#     calories=350,
+#     chef="Jane",
+# )
+#
+# meal2 = Meal.objects.create(
+#     name="Spaghetti Bolognese",
+#     meal_type="Dinner",
+#     preparation_time="45 minutes",
+#     difficulty=4,
+#     calories=550,
+#     chef="Sarah",
+# )
+# # Test the set_new_chefs function
+# set_new_chefs()
+#
+# # Test the set_new_preparation_times function
+# set_new_preparation_times()
+#
+# # Refreshes the instances
+# meal1.refresh_from_db()
+# meal2.refresh_from_db()
+#
+# # Print the updated meal information
+# print("Meal 1 Chef:", meal1.chef)
+# print("Meal 1 Preparation Time:", meal1.preparation_time)
+# print("Meal 2 Chef:", meal2.chef)
+# print("Meal 2 Preparation Time:", meal2.preparation_time)

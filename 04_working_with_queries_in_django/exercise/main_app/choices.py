@@ -14,3 +14,10 @@ class LaptopOperationSystemChoices(models.TextChoices):
     MACOS = 'MacOS', 'MacOS'
     LINUX = 'Linux', 'Linux'
     CHROME_OS = 'Chrome OS', 'Chrome OS'
+
+
+class MealTypeChoices(models.TextChoices):
+    BREAKFAST = 'Breakfast', 'Breakfast'
+    LUNCH = 'Lunch', 'Lunch'
+    DINNER = 'Dinner', 'Dinner'
+    SNACK = 'Snack', 'Snack'
