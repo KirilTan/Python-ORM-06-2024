@@ -1,5 +1,7 @@
 from django.db import models
 
+from main_app.choices import StudentEnrollmentGradeChoices
+
 
 # Create your models here.
 
@@ -33,6 +35,10 @@ class Subject(models.Model):
         blank=True,
     )
 
+    def __str__(self):
+        text = self.name
+        return text
+
 
 class Student(models.Model):
     student_id = models.CharField(
@@ -55,5 +61,31 @@ class Student(models.Model):
     )
 
     subjects = models.ManyToManyField(
-        Subject,
+        to=Subject,
+        through='StudentEnrollment',
     )
+
+
+class StudentEnrollment(models.Model):
+    student = models.ForeignKey(
+        to=Student,
+        on_delete=models.CASCADE,
+    )
+
+    subject = models.ForeignKey(
+        to=Subject,
+        on_delete=models.CASCADE,
+    )
+
+    enrollment_date = models.DateField(
+        auto_now_add=True,
+    )
+
+    grade = models.CharField(
+        max_length=1,
+        choices=StudentEnrollmentGradeChoices.choices
+    )
+
+    def __str__(self):
+        text = f'{self.student} enrolled in {self.subject}'
+        return text
