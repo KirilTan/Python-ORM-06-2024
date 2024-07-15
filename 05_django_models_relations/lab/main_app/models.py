@@ -91,3 +91,26 @@ class StudentEnrollment(models.Model):
     def __str__(self):
         text = f'{self.student} enrolled in {self.subject}'
         return text
+
+
+class LecturerProfile(models.Model):
+    lecturer = models.OneToOneField(
+        to=Lecturer,
+        on_delete=models.CASCADE,
+    )
+
+    email = models.EmailField(
+        unique=True,
+    )
+
+    bio = models.TextField(
+        null=True,
+        blank=True,
+    )
+
+    office_location = models.CharField(
+        max_length=100,
+        null=True,
+        blank=True,
+    )
+    
