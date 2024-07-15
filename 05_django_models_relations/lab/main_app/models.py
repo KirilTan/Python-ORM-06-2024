@@ -1,3 +1,5 @@
+from datetime import date
+
 from django.db import models
 
 from main_app.choices import StudentEnrollmentGradeChoices
@@ -78,7 +80,7 @@ class StudentEnrollment(models.Model):
     )
 
     enrollment_date = models.DateField(
-        auto_now_add=True,
+        default=date.today,
     )
 
     grade = models.CharField(
