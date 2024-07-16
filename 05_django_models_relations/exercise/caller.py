@@ -1,13 +1,13 @@
 import os
 import django
-from django.db.models import QuerySet
+from django.db.models import QuerySet, Sum, Count, Avg
 
 # Set up Django
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "orm_skeleton.settings")
 django.setup()
 
 # Import your models here
-from main_app.models import Author, Book, Artist, Song
+from main_app.models import Author, Book, Artist, Song, Product, Review
 
 
 # Create queries within functions
@@ -94,5 +94,33 @@ def delete_everything_task_two() -> None:
     Artist.objects.all().delete()
     Song.objects.all().delete()
 
+
+def calculate_average_rating_for_product_by_name(product_name: str) -> float:
+    # product = Product.objects.get(name=product_name)
+    # reviews = product.reviews.all()
+    #
+    # avg_rating = sum(review.rating for review in reviews) / len(reviews)
+    #
+    # return avg_rating
+
+    product = Product.objects.annotate(
+        avg_rating=Avg('reviews__rating')
+    ).get(
+        name=product_name
+    )
+    return product.avg_rating
+
+
+def get_reviews_with_high_ratings(threshold: int) -> QuerySet[Review]:
+    reviews = Review.objects.filter(rating__gte=threshold)
+    return reviews
+
+
+def get_products_with_no_reviews() -> QuerySet[Product]:
+    return Product.objects.filter(reviews__isnull=True).order_by('-name')
+
+
+def delete_products_without_reviews() -> None:
+    Product.objects.filter(reviews__isnull=True).delete()
 
 # Test functions
