@@ -9,7 +9,8 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "orm_skeleton.settings")
 django.setup()
 
 # Import your models here
-from main_app.models import Author, Book, Artist, Song, Product, Review, Driver, DrivingLicense
+from main_app.models import Author, Book, Artist, Song, Product, Review, Driver, DrivingLicense, Owner, Registration, \
+    Car
 
 
 # Create queries within functions
@@ -275,6 +276,52 @@ def delete_everything_task_four() -> None:
     """
     Driver.objects.all().delete()
     DrivingLicense.objects.all().delete()
+
+
+def register_car_by_owner(owner: Owner) -> str:
+    # First registration that is not related to any car
+    registration = Registration.objects.filter(car__isnull=True).first()
+
+    # First car without registration
+    car = Car.objects.filter(registration__isnull=True).first()
+
+    # Check if car and registration are available
+    if not registration and not car:
+        return 'No car and registration available'
+    elif not car:
+        return 'No car available'
+    elif not registration:
+        return 'No registration available'
+
+    # Set car owner
+    car.owner = owner
+    car.save()
+
+    # Set registration date
+    registration.registration_date = date.today()
+    registration.car = car
+    registration.save()
+
+    # Output message
+    message = (f'Successfully registered {car.model} '
+               f'to {owner.name} '
+               f'with registration number {registration.registration_number}.')
+    return message
+
+
+def delete_everything_task_five() -> None:
+    """
+    Deletes all records from the Owner, Car, and Registration models in the database.
+
+    This function performs a complete deletion of all entries in the Owner, Car, and Registration tables.
+    It does not take any parameters and does not return any value.
+
+    Returns:
+        None
+    """
+    Owner.objects.all().delete()
+    Car.objects.all().delete()
+    Registration.objects.all().delete()
 
 
 # Test functions
