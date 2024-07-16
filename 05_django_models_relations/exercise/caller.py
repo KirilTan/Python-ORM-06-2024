@@ -1,4 +1,6 @@
 import os
+from datetime import timedelta, date
+
 import django
 from django.db.models import QuerySet, Sum, Count, Avg
 
@@ -7,7 +9,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "orm_skeleton.settings")
 django.setup()
 
 # Import your models here
-from main_app.models import Author, Book, Artist, Song, Product, Review
+from main_app.models import Author, Book, Artist, Song, Product, Review, Driver, DrivingLicense
 
 
 # Create queries within functions
@@ -216,4 +218,39 @@ def delete_everything_task_three() -> None:
     Review.objects.all().delete()
 
 
+def calculate_licenses_expiration_dates() -> str:
+    output = []
 
+    for driver in Driver.objects.all().order_by('-license__license_number'):
+        output.append(
+            f"License with number: {driver.license.license_number} "
+            f"expires on {driver.license.issue_date + timedelta(days=365)}!"
+        )
+
+    return '\n'.join(output)
+
+
+def get_drivers_with_expired_licenses(due_date: date) -> QuerySet[Driver]:
+    expiration_cutoff_date = due_date - timedelta(days=365)
+    drivers_with_expired_licenses = Driver.objects.filter(
+        license__issue_date__gt=expiration_cutoff_date,
+    )
+
+    return drivers_with_expired_licenses
+
+
+def delete_everything_task_four() -> None:
+    """
+    Deletes all records from the Driver and DrivingLicense models in the database.
+
+    This function performs a complete deletion of all entries in the Driver and DrivingLicense tables.
+    It does not take any parameters and does not return any value.
+
+    Returns:
+        None
+    """
+    Driver.objects.all().delete()
+    DrivingLicense.objects.all().delete()
+
+
+# Test functions
