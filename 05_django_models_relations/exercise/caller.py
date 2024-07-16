@@ -69,6 +69,19 @@ def delete_everything_task_one() -> None:
 
 
 def add_song_to_artist(artist_name: str, song_title: str) -> None:
+    """
+    Adds a song to an artist's list of songs.
+
+    This function retrieves an artist and a song from the database based on their names,
+    and then associates the song with the artist.
+
+    Args:
+        artist_name (str): The name of the artist to whom the song will be added.
+        song_title (str): The title of the song to be added to the artist's list of songs.
+
+    Returns:
+        None
+    """
     artist = Artist.objects.get(name=artist_name)
     song = Song.objects.get(title=song_title)
 
@@ -76,14 +89,32 @@ def add_song_to_artist(artist_name: str, song_title: str) -> None:
 
 
 def get_songs_by_artist(artist_name: str) -> QuerySet[Song]:
-    # artist_object = Artist.objects.get(name=artist_name)
-    # songs_queryset = artist_object.songs.all()
-    # return songs_queryset
+    """
+    Retrieves a list of songs associated with a given artist, ordered by their ID in descending order.
 
+    Args:
+        artist_name (str): The name of the artist whose songs are to be retrieved.
+
+    Returns:
+        QuerySet[Song]: A queryset containing the songs associated with the specified artist, ordered by their ID in descending order.
+    """
     return Artist.objects.get(name=artist_name).songs.all().order_by('-id')
 
 
 def remove_song_from_artist(artist_name: str, song_title: str) -> None:
+    """
+    Removes a song from an artist's list of songs.
+
+    This function retrieves an artist and a song from the database based on their names,
+    and then disassociates the song from the artist.
+
+    Args:
+        artist_name (str): The name of the artist from whom the song will be removed.
+        song_title (str): The title of the song to be removed from the artist's list of songs.
+
+    Returns:
+        None
+    """
     artist = Artist.objects.get(name=artist_name)
     song = Song.objects.get(title=song_title)
 
@@ -91,6 +122,15 @@ def remove_song_from_artist(artist_name: str, song_title: str) -> None:
 
 
 def delete_everything_task_two() -> None:
+    """
+    Deletes all records from the Artist and Song models in the database.
+
+    This function performs a complete deletion of all entries in the Artist and Song tables.
+    It does not take any parameters and does not return any value.
+
+    Returns:
+        None
+    """
     Artist.objects.all().delete()
     Song.objects.all().delete()
 
