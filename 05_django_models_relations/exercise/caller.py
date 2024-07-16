@@ -136,13 +136,18 @@ def delete_everything_task_two() -> None:
 
 
 def calculate_average_rating_for_product_by_name(product_name: str) -> float:
-    # product = Product.objects.get(name=product_name)
-    # reviews = product.reviews.all()
-    #
-    # avg_rating = sum(review.rating for review in reviews) / len(reviews)
-    #
-    # return avg_rating
+    """
+    Calculates the average rating for a product based on its reviews.
 
+    This function retrieves a product by its name and calculates the average rating
+    from all associated reviews.
+
+    Args:
+        product_name (str): The name of the product for which the average rating is to be calculated.
+
+    Returns:
+        float: The average rating of the product based on its reviews.
+    """
     product = Product.objects.annotate(
         avg_rating=Avg('reviews__rating')
     ).get(
@@ -152,15 +157,60 @@ def calculate_average_rating_for_product_by_name(product_name: str) -> float:
 
 
 def get_reviews_with_high_ratings(threshold: int) -> QuerySet[Review]:
+    """
+    Retrieves a list of reviews with ratings greater than or equal to the specified threshold.
+
+    This function queries the Review model to find all reviews that have a rating greater than or equal
+    to the given threshold.
+
+    Args:
+        threshold (int): The minimum rating value to filter reviews.
+
+    Returns:
+        QuerySet[Review]: A queryset containing the reviews with ratings greater than or equal to the threshold.
+    """
     reviews = Review.objects.filter(rating__gte=threshold)
     return reviews
 
 
 def get_products_with_no_reviews() -> QuerySet[Product]:
+    """
+    Retrieves a list of products that do not have any associated reviews.
+
+    This function queries the Product model to find all products that do not have any reviews
+    associated with them (i.e., products for which the 'reviews' relationship is null) and orders
+    them by their name in descending order.
+
+    Returns:
+        QuerySet[Product]: A queryset containing the products with no reviews, ordered by their name in descending order.
+    """
     return Product.objects.filter(reviews__isnull=True).order_by('-name')
 
 
 def delete_products_without_reviews() -> None:
+    """
+    Deletes all products from the database that do not have any associated reviews.
+
+    This function queries the Product model to find all products that do not have any reviews
+    associated with them (i.e., products for which the 'reviews' relationship is null) and deletes them.
+
+    Returns:
+        None
+    """
     Product.objects.filter(reviews__isnull=True).delete()
+
+
+def delete_everything_task_three() -> None:
+    """
+    Deletes all records from the Product and Review models in the database.
+
+    This function performs a complete deletion of all entries in the Product and Review tables.
+    It does not take any parameters and does not return any value.
+
+    Returns:
+        None
+    """
+    Product.objects.all().delete()
+    Review.objects.all().delete()
 
 # Test functions
