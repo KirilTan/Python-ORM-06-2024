@@ -1,12 +1,13 @@
 import os
 import django
+from django.db.models import QuerySet
 
 # Set up Django
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "orm_skeleton.settings")
 django.setup()
 
 # Import your models here
-from main_app.models import Author, Book
+from main_app.models import Author, Book, Artist, Song
 
 
 # Create queries within functions
@@ -67,37 +68,31 @@ def delete_everything_task_one() -> None:
     Book.objects.all().delete()
 
 
-# Test functions
+def add_song_to_artist(artist_name: str, song_title: str) -> None:
+    artist = Artist.objects.get(name=artist_name)
+    song = Song.objects.get(title=song_title)
 
-# Create authors
-# author1 = Author.objects.create(name="J.K. Rowling")
-# author2 = Author.objects.create(name="George Orwell")
-# author3 = Author.objects.create(name="Harper Lee")
-# author4 = Author.objects.create(name="Mark Twain")
-#
-# # Create books associated with the authors
-# book1 = Book.objects.create(
-#     title="Harry Potter and the Philosopher's Stone",
-#     price=19.99,
-#     author=author1
-# )
-# book2 = Book.objects.create(
-#     title="1984",
-#     price=14.99,
-#     author=author2
-# )
-#
-# book3 = Book.objects.create(
-#     title="To Kill a Mockingbird",
-#     price=12.99,
-#     author=author3
-# )
-#
-# # Display authors and their books
-# authors_with_books = show_all_authors_with_their_books()
-# print(authors_with_books)
-#
-# # Delete authors without books
-# delete_all_authors_without_books()
-# print(Author.objects.count())
-# delete_everything_task_one()
+    artist.songs.add(song)
+
+
+def get_songs_by_artist(artist_name: str) -> QuerySet[Song]:
+    # artist_object = Artist.objects.get(name=artist_name)
+    # songs_queryset = artist_object.songs.all()
+    # return songs_queryset
+
+    return Artist.objects.get(name=artist_name).songs.all().order_by('-id')
+
+
+def remove_song_from_artist(artist_name: str, song_title: str) -> None:
+    artist = Artist.objects.get(name=artist_name)
+    song = Song.objects.get(title=song_title)
+
+    artist.songs.remove(song)
+
+
+def delete_everything_task_two() -> None:
+    Artist.objects.all().delete()
+    Song.objects.all().delete()
+
+
+# Test functions
