@@ -279,6 +279,20 @@ def delete_everything_task_four() -> None:
 
 
 def register_car_by_owner(owner: Owner) -> str:
+    """
+    Registers a car to an owner by associating the first available car and registration.
+
+    This function finds the first available car and registration that are not yet associated with each other.
+    It then assigns the car to the given owner and sets the registration date to the current date.
+
+    Args:
+        owner (Owner): The owner to whom the car will be registered.
+
+    Returns:
+        str: A message indicating the success of the registration process, including the car model,
+             owner's name, and registration number. If no car or registration is available, an appropriate
+             message is returned.
+    """
     # First registration that is not related to any car
     registration = Registration.objects.filter(car__isnull=True).first()
 
