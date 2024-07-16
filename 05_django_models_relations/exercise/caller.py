@@ -21,7 +21,8 @@ def show_all_authors_with_their_books() -> str:
     Finally, it joins all the formatted strings with newline characters and returns the result.
 
     Returns:
-        str: A formatted string where each line contains an author's name followed by the titles of the books they have written.
+        str: A formatted string where each line contains an author's name
+             followed by the titles of the books they have written.
     """
     authors_books = []
 
@@ -96,7 +97,8 @@ def get_songs_by_artist(artist_name: str) -> QuerySet[Song]:
         artist_name (str): The name of the artist whose songs are to be retrieved.
 
     Returns:
-        QuerySet[Song]: A queryset containing the songs associated with the specified artist, ordered by their ID in descending order.
+        QuerySet[Song]: A queryset containing the songs associated with the specified artist,
+                        ordered by their ID in descending order.
     """
     return Artist.objects.get(name=artist_name).songs.all().order_by('-id')
 
@@ -182,7 +184,7 @@ def get_products_with_no_reviews() -> QuerySet[Product]:
     them by their name in descending order.
 
     Returns:
-        QuerySet[Product]: A queryset containing the products with no reviews, ordered by their name in descending order.
+        QuerySet[Product]: A queryset containing the products with no reviews, ordered by their name in descending order
     """
     return Product.objects.filter(reviews__isnull=True).order_by('-name')
 
@@ -213,4 +215,5 @@ def delete_everything_task_three() -> None:
     Product.objects.all().delete()
     Review.objects.all().delete()
 
-# Test functions
+
+
