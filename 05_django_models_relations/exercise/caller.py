@@ -219,6 +219,17 @@ def delete_everything_task_three() -> None:
 
 
 def calculate_licenses_expiration_dates() -> str:
+    """
+    Calculates the expiration dates for all driving licenses and formats them into a string.
+
+    This function retrieves all drivers from the database, orders them by their license number in descending order,
+    and calculates the expiration date for each license (one year from the issue date). It then formats a string
+    containing the license number and its expiration date for each driver and appends this string to a list.
+    Finally, it joins all the formatted strings with newline characters and returns the result.
+
+    Returns:
+        str: A formatted string where each line contains a license number and its expiration date.
+    """
     output = []
 
     for driver in Driver.objects.all().order_by('-license__license_number'):
@@ -231,6 +242,19 @@ def calculate_licenses_expiration_dates() -> str:
 
 
 def get_drivers_with_expired_licenses(due_date: date) -> QuerySet[Driver]:
+    """
+    Retrieves a list of drivers whose licenses have expired by a given due date.
+
+    This function calculates the expiration cutoff date by subtracting one year from the provided due date.
+    It then queries the Driver model to find all drivers whose license issue date is greater than the calculated
+    expiration cutoff date, indicating that their licenses have expired.
+
+    Args:
+        due_date (date): The date by which to check for expired licenses.
+
+    Returns:
+        QuerySet[Driver]: A queryset containing the drivers with expired licenses.
+    """
     expiration_cutoff_date = due_date - timedelta(days=365)
     drivers_with_expired_licenses = Driver.objects.filter(
         license__issue_date__gt=expiration_cutoff_date,
