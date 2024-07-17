@@ -1,3 +1,5 @@
+from datetime import date
+
 from django.db import models
 from django.core.exceptions import ValidationError
 
@@ -19,6 +21,11 @@ class Animal(models.Model):
     sound = models.CharField(
         max_length=100,
     )
+
+    @property
+    def age(self):
+        age = (date.today() - self.birth_date).days // 365
+        return age
 
     def __str__(self):
         text = f'{self.name} is a {self.species} born on {self.birth_date}. It makes {self.sound} sound'
