@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.exceptions import ValidationError
 
 from main_app.choices import EmployeeZooKeeperSpecialties
 
@@ -77,38 +78,6 @@ class Veterinarian(Employee):
     )
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+class ZooDisplayAnimal(Animal):
+    class Meta:
+        proxy = True
