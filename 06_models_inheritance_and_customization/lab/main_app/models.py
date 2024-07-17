@@ -71,6 +71,12 @@ class ZooKeeper(Employee):
         to=Animal,
     )
 
+    def clean(self):
+        if self.specialty not in EmployeeZooKeeperSpecialties:
+            raise ValidationError(
+                "Specialty must be a valid choice."
+            )
+
 
 class Veterinarian(Employee):
     license_number = models.CharField(
