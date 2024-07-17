@@ -4,6 +4,7 @@ from django.db import models
 from django.core.exceptions import ValidationError
 
 from main_app.choices import EmployeeZooKeeperSpecialties
+from main_app.fields import BooleanChoiceField
 
 
 # Create your models here.
@@ -89,6 +90,8 @@ class Veterinarian(Employee):
     license_number = models.CharField(
         max_length=10,
     )
+
+    availability = BooleanChoiceField()
 
 
 class ZooDisplayAnimal(Animal):
