@@ -1,5 +1,7 @@
 from django.db import models
 
+from main_app.choices import EmployeeZooKeeperSpecialties
+
 
 # Create your models here.
 class Animal(models.Model):
@@ -39,3 +41,74 @@ class Reptile(Animal):
     scale_type = models.CharField(
         max_length=50,
     )
+
+
+class Employee(models.Model):
+    first_name = models.CharField(
+        max_length=50,
+    )
+
+    last_name = models.CharField(
+        max_length=50,
+    )
+
+    phone_number = models.CharField(
+        max_length=10,
+    )
+
+    class Meta:
+        abstract = True
+
+
+class ZooKeeper(Employee):
+    specialty = models.CharField(
+        max_length=10,
+        choices=EmployeeZooKeeperSpecialties.choices,
+    )
+
+    managed_animals = models.ManyToManyField(
+        to=Animal,
+    )
+
+
+class Veterinarian(Employee):
+    license_number = models.CharField(
+        max_length=10,
+    )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
