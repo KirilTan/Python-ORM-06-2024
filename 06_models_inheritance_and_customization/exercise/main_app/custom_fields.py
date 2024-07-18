@@ -37,3 +37,33 @@ class StudentIDField(models.PositiveIntegerField):
             raise ValidationError('ID cannot be less than or equal to zero')
 
         return cleaned_value
+
+
+class MaskedCreditCardField(models.CharField):
+    def __init__(self, *args, **kwargs):
+        kwargs['max_length'] = 20
+        super().__init__(*args, **kwargs)
+
+    def to_python(self, value: any) -> str or None:
+        """
+        Converts the input credit card number to a masked format.
+
+        Args:
+            value (any): The credit card number to be masked.
+
+        Returns:
+            str or None: The masked credit card number in the format '****-****-****-1234'.
+
+        Raises:
+            ValidationError: If the input is not a string, contains non-digit characters, or is not exactly 16 characters long.
+        """
+        if not isinstance(value, str):
+            raise ValidationError('The card number must be a string')
+
+        if not value.isdigit():
+            raise ValidationError('The card number must contain only digits')
+
+        if len(value) != 16:
+            raise ValidationError('The card number must be exactly 16 characters long')
+
+        return f'****-****-****-{value[-4:]}'

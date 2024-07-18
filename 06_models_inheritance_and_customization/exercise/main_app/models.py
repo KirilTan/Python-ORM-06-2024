@@ -1,6 +1,6 @@
 from django.db import models
 
-from main_app.custom_fields import StudentIDField
+from main_app.custom_fields import StudentIDField, MaskedCreditCardField
 
 
 # Create your models here.
@@ -191,3 +191,11 @@ class Student(models.Model):
     )
 
     student_id = StudentIDField()
+
+
+class CreditCard(models.Model):
+    card_owner = models.CharField(
+        max_length=100,
+    )
+
+    card_number = MaskedCreditCardField()
