@@ -6,7 +6,8 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "orm_skeleton.settings")
 django.setup()
 
 # Import your models here
-from main_app.models import Mage, Necromancer, UserProfile, Message
-
+from main_app.models import Mage, Necromancer, UserProfile, Message, Student
 
 # Create queries within functions
+
+# Create instances

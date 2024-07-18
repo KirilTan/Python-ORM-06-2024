@@ -1,5 +1,7 @@
 from django.db import models
 
+from main_app.custom_fields import StudentIDField
+
 
 # Create your models here.
 class BaseCharacter(models.Model):
@@ -181,3 +183,11 @@ class Message(models.Model):
             content=self.content,
         )
         return new_message
+
+
+class Student(models.Model):
+    name = models.CharField(
+        max_length=100,
+    )
+
+    student_id = StudentIDField()
