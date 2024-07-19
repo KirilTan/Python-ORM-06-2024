@@ -52,3 +52,31 @@ class Menu(models.Model):
         to=Restaurant,
         on_delete=models.CASCADE,
     )
+
+
+class RestaurantReview(models.Model):
+    reviewer_name = models.CharField(
+        max_length=100,
+    )
+
+    restaurant = models.ForeignKey(
+        to=Restaurant,
+        on_delete=models.CASCADE,
+    )
+
+    review_content = models.TextField()
+
+    rating = models.PositiveIntegerField(
+        validators=[
+            validators.MaxValueValidator(5)
+        ]
+    )
+
+    class Meta:
+        ordering = ['-rating']
+        verbose_name = 'Restaurant Review'
+        verbose_name_plural = 'Restaurant Reviews'
+        unique_together = [
+            'reviewer_name',
+            'restaurant',
+        ]
