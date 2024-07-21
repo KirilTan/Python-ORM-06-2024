@@ -3,6 +3,8 @@ from decimal import Decimal
 from django.core.validators import RegexValidator, MinValueValidator, MinLengthValidator
 from django.db import models
 
+from main_app.mixins import RechargeEnergyMixin
+
 
 # Create your models here.
 class Customer(models.Model):
@@ -195,3 +197,53 @@ class DiscountedProduct(Product):
     def format_product_name(self) -> str:
         text = f'Discounted Product: {self.name}'
         return text
+
+
+class Hero(models.Model, RechargeEnergyMixin):
+    name = models.CharField(
+        max_length=100
+    )
+
+    hero_title = models.CharField(
+        max_length=100
+    )
+
+    energy = models.PositiveIntegerField()  # Needs to always be a positive integer
+
+    def use_energy(self, expenditure: int, success_message: str, failure_message: str) -> str:
+        new_energy = self.energy - expenditure
+
+        if new_energy < 0:
+            return failure_message
+
+        elif new_energy == 0:
+            self.energy = 1
+
+        else:
+            self.energy = new_energy
+
+        self.save()
+        return success_message
+
+
+class SpiderHero(Hero):
+    def swing_from_buildings(self) -> str:
+        expenditure = 80
+        success_message = f'{self.name} as Spider Hero swings from buildings using web shooters'
+        failure_message = f'{self.name} as Spider Hero is out of web shooter fluid'
+        return self.use_energy(expenditure, success_message, failure_message)
+
+    class Meta:
+        proxy = True
+
+
+class FlashHero(Hero):
+    def run_at_super_speed(self) -> str:
+        expenditure = 65
+        success_message = f'{self.name} as Flash Hero runs at lightning speed, saving the day'
+        failure_message = f'{self.name} as Flash Hero needs to recharge the speed force'
+        return self.use_energy(expenditure, success_message, failure_message)
+
+    class Meta:
+        proxy = True
+
