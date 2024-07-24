@@ -1,5 +1,7 @@
 from django.db import models
 
+from main_app.managers import RealEstateListingManager
+
 
 # Create your models here.
 
@@ -17,6 +19,8 @@ class RealEstateListing(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     bedrooms = models.PositiveIntegerField()
     location = models.CharField(max_length=100)
+
+    objects = RealEstateListingManager()
 
 
 class VideoGame(models.Model):
