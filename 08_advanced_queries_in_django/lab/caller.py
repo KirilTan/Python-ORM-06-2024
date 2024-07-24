@@ -1,5 +1,8 @@
 import os
+from pprint import pprint
+
 import django
+from django.db import connection
 from django.db.models import Sum
 
 # Set up Django
@@ -84,3 +87,33 @@ def product_quantity_ordered() -> str:
             f'Quantity ordered of {product.name}: {product.total_ordered_quantity}'
         )
     return '\n'.join(result)
+
+
+def ordered_products_per_customer() -> str:
+    """
+    Retrieves and returns a string representation of all orders, including the customer who placed the order 
+    and the products in each order, along with their categories.
+
+    Returns:
+        str: A string where each order is listed with its ID and the username of the customer who placed it. 
+             Each product in the order is listed with its name and category.
+    """
+    prefetched_orders = Order.objects.prefetch_related('orderproduct_set__product__category').order_by('id')
+
+    result = []
+    for order in prefetched_orders:
+        result.append(
+            f'Order ID: {order.id}, Customer: {order.customer.username}'
+        )
+
+        for order_product in order.orderproduct_set.all():
+            result.append(
+                f'- Product: {order_product.product.name}, Category: {order_product.product.category.name}'
+            )
+
+    return '\n'.join(result)
+
+# Print sql queries executed
+print('-' * 100,
+      '\n')
+pprint(connection.queries)
