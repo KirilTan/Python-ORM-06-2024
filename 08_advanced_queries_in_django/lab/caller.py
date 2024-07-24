@@ -3,7 +3,7 @@ from pprint import pprint
 
 import django
 from django.db import connection
-from django.db.models import Sum
+from django.db.models import Sum, Q
 
 # Set up Django
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "orm_skeleton.settings")
@@ -113,7 +113,33 @@ def ordered_products_per_customer() -> str:
 
     return '\n'.join(result)
 
+
+def filter_products() -> str:
+    """
+    Filters and retrieves products that are available and have a price greater than 3.00,
+    then sorts them by price in descending order and by name in ascending order.
+
+    Returns:
+        str: A string representation of the filtered products, where each line contains the 
+             product name and its price, formatted as 'Product Name: Price lv.'.
+    """
+    query = Q(is_available=True) & Q(price__gt=3.00)
+    products = (Product.objects
+                .filter(query)
+                .order_by('-price',
+                          'name')
+                )
+
+    result = []
+    for product in products:
+        result.append(
+            f'{product.name}: {product.price}lv.'
+        )
+
+    return '\n'.join(result)
+
 # Print sql queries executed
-print('-' * 100,
-      '\n')
-pprint(connection.queries)
+# print('-' * 100,
+#       '\n')
+# pprint(connection.queries)
+#
