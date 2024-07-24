@@ -251,14 +251,14 @@ class Exercise(models.Model):
         """
         Retrieve exercises that are both short in duration and easy in difficulty.
 
-        This method filters exercises that have a duration of less than 30 minutes
+        This method filters exercises that have a duration of less than 15 minutes
         and a difficulty level of less than 5.
 
         Returns:
             QuerySet: A QuerySet of exercises that are short and easy.
         """
         return cls.objects.filter(
-            duration_minutes__lt=30,
+            duration_minutes__lt=15,
             difficulty_level__lt=5,
         )
 
@@ -295,6 +295,6 @@ class Exercise(models.Model):
             QuerySet: A QuerySet of exercises that meet or exceed the specified difficulty and repetition thresholds.
         """
         return cls.objects.filter(
-            difficulty_level__gte='min_difficulty',
-            repetitions__gte='min_repetitions',
+            difficulty_level__gte=min_difficulty,
+            repetitions__gte=min_repetitions,
         )
