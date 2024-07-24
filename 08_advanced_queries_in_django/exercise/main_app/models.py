@@ -1,6 +1,8 @@
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 
-from main_app.managers import RealEstateListingManager
+from main_app.managers import RealEstateListingManager, VideoGameManager
+from main_app.validators import RangeValueValidator
 
 
 # Create your models here.
@@ -34,8 +36,21 @@ class VideoGame(models.Model):
 
     title = models.CharField(max_length=100)
     genre = models.CharField(max_length=100, choices=GENRE_CHOICES)
-    release_year = models.PositiveIntegerField()
-    rating = models.DecimalField(max_digits=2,decimal_places=1)
+    release_year = models.PositiveIntegerField(
+        validators=[
+            RangeValueValidator(1990,
+                                2023,
+                                message="The release year must be between 1990 and 2023"),
+        ]
+    )
+    rating = models.DecimalField(max_digits=2,
+                                 decimal_places=1,
+                                 validators=[
+                                     RangeValueValidator(0,
+                                                         10,),
+                                 ])
+
+    objects = VideoGameManager()
 
     def __str__(self):
         return self.title
