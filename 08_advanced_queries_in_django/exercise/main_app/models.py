@@ -1,6 +1,8 @@
+from datetime import timedelta
+
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
-from django.db.models import QuerySet
+from django.db.models import QuerySet, F, Q
 
 from main_app.managers import RealEstateListingManager, VideoGameManager
 from main_app.validators import RangeValueValidator
@@ -153,6 +155,71 @@ class Task(models.Model):
     is_completed = models.BooleanField(default=False)
     creation_date = models.DateField()
     completion_date = models.DateField()
+
+    @classmethod
+    def ongoing_high_priority_tasks(cls) -> QuerySet:
+        """
+        Retrieve all ongoing tasks with high priority.
+
+        This method filters tasks that have a high priority, are not completed,
+        and have a completion date greater than the creation date.
+
+        :return: A QuerySet of ongoing high priority tasks.
+        :rtype: QuerySet
+        """
+        return cls.objects.filter(
+            priority='High',
+            is_completed=False,
+            completion_date__gt=F('creation_date'),
+        )
+
+    @classmethod
+    def completed_mid_priority_tasks(cls) -> QuerySet:
+        """
+        Retrieve all completed tasks with medium priority.
+
+        This method filters tasks that have a medium priority and are completed.
+
+        :return: A QuerySet of completed medium priority tasks.
+        :rtype: QuerySet
+        """
+        return cls.objects.filter(
+            priority='Medium',
+            is_completed=True,
+        )
+
+    @classmethod
+    def search_tasks(cls, query: str) -> QuerySet:
+        """
+        Search for tasks based on a query string.
+
+        This method filters tasks where the title or description contains the given query string, case-insensitive.
+
+        :param query: The query string to search for in task titles and descriptions.
+        :type query: str
+        :return: A QuerySet of tasks matching the search query.
+        :rtype: QuerySet
+        """
+        return cls.objects.filter(
+            Q(title__icontains=query) | Q(description__icontains=query),
+        )
+
+    @classmethod
+    def recent_completed_tasks(cls, days: int) -> QuerySet:
+        """
+        Retrieve recently completed tasks within a specified number of days.
+
+        This method filters tasks that are completed and have a completion date greater than or equal to the creation date minus the specified number of days.
+
+        :param days: The number of days to look back for recently completed tasks.
+        :type days: int
+        :return: A QuerySet of recently completed tasks.
+        :rtype: QuerySet
+        """
+        return cls.objects.filter(
+            is_completed=True,
+            completion_date__gte=F('creation_date') - timedelta(days=days),
+        )
 
 
 class Exercise(models.Model):
