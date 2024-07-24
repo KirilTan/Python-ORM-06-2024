@@ -67,14 +67,36 @@ class Invoice(models.Model):
 
     @classmethod
     def get_invoices_with_prefix(cls, prefix: str) -> QuerySet:
+        """
+        Retrieve all invoices that have an invoice number starting with the given prefix.
+
+        :param prefix: The prefix string to filter invoice numbers.
+        :type prefix: str
+        :return: A QuerySet of invoices with invoice numbers starting with the given prefix.
+        :rtype: QuerySet
+        """
         return cls.objects.filter(invoice_number__startswith=prefix)
 
     @classmethod
     def get_invoices_sorted_by_number(cls) -> QuerySet:
+        """
+        Retrieve all invoices sorted by their invoice number in ascending order.
+
+        :return: A QuerySet of invoices sorted by invoice number.
+        :rtype: QuerySet
+        """
         return cls.objects.order_by('invoice_number')
 
     @classmethod
     def get_invoice_with_billing_info(cls, invoice_number: str) -> 'Invoice':
+        """
+        Retrieve a single invoice along with its associated billing information based on the invoice number.
+
+        :param invoice_number: The invoice number to filter by.
+        :type invoice_number: str
+        :return: An Invoice instance with the specified invoice number and its associated billing information.
+        :rtype: Invoice
+        """
         return cls.objects.select_related('billing_info').get(invoice_number=invoice_number)
 
 
@@ -88,10 +110,34 @@ class Project(models.Model):
     description = models.TextField()
     technologies_used = models.ManyToManyField(Technology, related_name='projects')
 
+    def get_programmers_with_technologies(self) -> QuerySet:
+        """
+        Retrieve all programmers associated with the project, along with the technologies used in their projects.
+
+        This method uses `prefetch_related` to optimize the query and reduce the number of database hits by prefetching
+        the related `projects` and their associated `technologies_used`.
+
+        :return: A QuerySet of programmers associated with the project, including the technologies used in their projects.
+        :rtype: QuerySet
+        """
+        return self.programmers.prefetch_related('projects__technologies_used')
+
 
 class Programmer(models.Model):
     name = models.CharField(max_length=100)
     projects = models.ManyToManyField(Project, related_name='programmers')
+
+    def get_projects_with_technologies(self) -> QuerySet:
+        """
+        Retrieve all projects associated with the programmer, along with the technologies used in those projects.
+
+        This method uses `prefetch_related` to optimize the query and reduce the number of database hits by prefetching
+        the related `technologies_used` for each project.
+
+        :return: A QuerySet of projects associated with the programmer, including the technologies used in those projects.
+        :rtype: QuerySet
+        """
+        return self.projects.prefetch_related('technologies_used')
 
 
 class Task(models.Model):
