@@ -209,7 +209,8 @@ class Task(models.Model):
         """
         Retrieve recently completed tasks within a specified number of days.
 
-        This method filters tasks that are completed and have a completion date greater than or equal to the creation date minus the specified number of days.
+        This method filters tasks that are completed and have a completion date greater than or equal to the creation
+        date minus the specified number of days.
 
         :param days: The number of days to look back for recently completed tasks.
         :type days: int
@@ -228,3 +229,72 @@ class Exercise(models.Model):
     difficulty_level = models.PositiveIntegerField()
     duration_minutes = models.PositiveIntegerField()
     repetitions = models.PositiveIntegerField()
+
+    @classmethod
+    def get_long_and_hard_exercises(cls) -> QuerySet:
+        """
+        Retrieve exercises that are both long in duration and high in difficulty.
+
+        This method filters exercises that have a duration greater than 30 minutes
+        and a difficulty level greater than or equal to 10.
+
+        Returns:
+            QuerySet: A QuerySet of exercises that are long and hard.
+        """
+        return cls.objects.filter(
+            duration_minutes__gt=30,
+            difficulty_level__gte=10,
+        )
+
+    @classmethod
+    def get_short_and_easy_exercises(cls) -> QuerySet:
+        """
+        Retrieve exercises that are both short in duration and easy in difficulty.
+
+        This method filters exercises that have a duration of less than 30 minutes
+        and a difficulty level of less than 5.
+
+        Returns:
+            QuerySet: A QuerySet of exercises that are short and easy.
+        """
+        return cls.objects.filter(
+            duration_minutes__lt=30,
+            difficulty_level__lt=5,
+        )
+
+    @classmethod
+    def get_exercises_within_duration(cls, min_duration: int, max_duration: int) -> QuerySet:
+        """
+        Retrieve exercises that fall within a specified duration range.
+
+        This method filters exercises based on a minimum and maximum duration in minutes.
+
+        Parameters:
+            min_duration (int): The minimum duration in minutes for the exercises to be retrieved.
+            max_duration (int): The maximum duration in minutes for the exercises to be retrieved.
+
+        Returns:
+            QuerySet: A QuerySet of exercises that have a duration within the specified range.
+        """
+        return cls.objects.filter(
+            duration_minutes__range=(min_duration, max_duration),
+        )
+
+    @classmethod
+    def get_exercises_with_difficulty_and_repetitions(cls, min_difficulty: int, min_repetitions: int) -> QuerySet:
+        """
+        Retrieve exercises that meet or exceed specified difficulty and repetition thresholds.
+
+        This method filters exercises based on a minimum difficulty level and a minimum number of repetitions.
+
+        Parameters:
+            min_difficulty (int): The minimum difficulty level for the exercises to be retrieved.
+            min_repetitions (int): The minimum number of repetitions for the exercises to be retrieved.
+
+        Returns:
+            QuerySet: A QuerySet of exercises that meet or exceed the specified difficulty and repetition thresholds.
+        """
+        return cls.objects.filter(
+            difficulty_level__gte='min_difficulty',
+            repetitions__gte='min_repetitions',
+        )
