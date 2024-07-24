@@ -3,7 +3,7 @@ from pprint import pprint
 
 import django
 from django.db import connection
-from django.db.models import Sum, Q
+from django.db.models import Sum, Q, F
 
 # Set up Django
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "orm_skeleton.settings")
@@ -20,23 +20,39 @@ def add_records_to_database():
     drinks_category = (Category.objects.create(name='Drinks'))
 
     # Food
-    product1 = Product.objects.create(name='Pizza', description='Delicious pizza with toppings', price=10.99, category=food_category, is_available=False)
-    product2 = Product.objects.create(name='Burger', description='Classic burger with cheese and fries', price=7.99, category=food_category, is_available=False)
-    product3 = Product.objects.create(name='Apples', description='A bag of juicy red apples', price=3.99, category=food_category, is_available=True)
-    product4 = Product.objects.create(name='Bread', description='A freshly baked loaf of bread', price=2.49, category=food_category, is_available=True)
-    product5 = Product.objects.create(name='Pasta and Sauce Bundle', description='Package containing pasta and a jar of pasta sauce', price=6.99, category=food_category, is_available=False)
-    product6 = Product.objects.create(name='Tomatoes', description='A bundle of ripe, red tomatoes', price=2.99, category=food_category, is_available=True)
-    product7 = Product.objects.create(name='Carton of Eggs', description='A carton containing a dozen fresh eggs', price=3.49, category=food_category, is_available=True)
-    product8 = Product.objects.create(name='Cheddar Cheese', description='A block of aged cheddar cheese', price=7.99, category=food_category, is_available=False)
-    product9 = Product.objects.create(name='Milk', description='A gallon of fresh cow milk', price=3.49, category=food_category, is_available=True)
+    product1 = Product.objects.create(name='Pizza', description='Delicious pizza with toppings', price=10.99,
+                                      category=food_category, is_available=False)
+    product2 = Product.objects.create(name='Burger', description='Classic burger with cheese and fries', price=7.99,
+                                      category=food_category, is_available=False)
+    product3 = Product.objects.create(name='Apples', description='A bag of juicy red apples', price=3.99,
+                                      category=food_category, is_available=True)
+    product4 = Product.objects.create(name='Bread', description='A freshly baked loaf of bread', price=2.49,
+                                      category=food_category, is_available=True)
+    product5 = Product.objects.create(name='Pasta and Sauce Bundle',
+                                      description='Package containing pasta and a jar of pasta sauce', price=6.99,
+                                      category=food_category, is_available=False)
+    product6 = Product.objects.create(name='Tomatoes', description='A bundle of ripe, red tomatoes', price=2.99,
+                                      category=food_category, is_available=True)
+    product7 = Product.objects.create(name='Carton of Eggs', description='A carton containing a dozen fresh eggs',
+                                      price=3.49, category=food_category, is_available=True)
+    product8 = Product.objects.create(name='Cheddar Cheese', description='A block of aged cheddar cheese', price=7.99,
+                                      category=food_category, is_available=False)
+    product9 = Product.objects.create(name='Milk', description='A gallon of fresh cow milk', price=3.49,
+                                      category=food_category, is_available=True)
 
     # Drinks
-    product10 = Product.objects.create(name='Coca Cola', description='Refreshing cola drink', price=1.99, category=drinks_category, is_available=True)
-    product11 = Product.objects.create(name='Orange Juice', description='Freshly squeezed orange juice', price=2.49, category=drinks_category, is_available=False)
-    product12 = Product.objects.create(name='Bottled Water', description='A 12-pack of purified bottled water', price=4.99, category=drinks_category, is_available=True)
-    product13 = Product.objects.create(name='Orange Soda', description='A 6-pack of carbonated orange soda', price=5.49, category=drinks_category, is_available=True)
-    product14 = Product.objects.create(name='Bottled Green Tea', description='A bottled green tea', price=3.99, category=drinks_category, is_available=False)
-    product15 = Product.objects.create(name='Beer', description='A bottled craft beer', price=5.49, category=drinks_category, is_available=True)
+    product10 = Product.objects.create(name='Coca Cola', description='Refreshing cola drink', price=1.99,
+                                       category=drinks_category, is_available=True)
+    product11 = Product.objects.create(name='Orange Juice', description='Freshly squeezed orange juice', price=2.49,
+                                       category=drinks_category, is_available=False)
+    product12 = Product.objects.create(name='Bottled Water', description='A 12-pack of purified bottled water',
+                                       price=4.99, category=drinks_category, is_available=True)
+    product13 = Product.objects.create(name='Orange Soda', description='A 6-pack of carbonated orange soda', price=5.49,
+                                       category=drinks_category, is_available=True)
+    product14 = Product.objects.create(name='Bottled Green Tea', description='A bottled green tea', price=3.99,
+                                       category=drinks_category, is_available=False)
+    product15 = Product.objects.create(name='Beer', description='A bottled craft beer', price=5.49,
+                                       category=drinks_category, is_available=True)
 
     # Customers
     customer1 = Customer.objects.create(username='john_doe')
@@ -79,7 +95,7 @@ def product_quantity_ordered() -> str:
         .annotate(total_ordered_quantity=Sum('orderproduct__quantity'))
         .exclude(total_ordered_quantity=None)
         .order_by('-total_ordered_quantity')
-        )
+    )
 
     result = []
     for product in total_products_ordered:
@@ -138,8 +154,41 @@ def filter_products() -> str:
 
     return '\n'.join(result)
 
+
+def give_discount():
+    """
+    Applies a 30% discount to all available products with a price greater than 3.00,
+    then retrieves and returns a string representation of all available products sorted by price in descending order 
+    and by name in ascending order.
+
+    Returns:
+        str: A string where each line contains the product name and its discounted price, formatted as 'Product Name: Price lv.'.
+    """
+    reduction = F('price') * 0.7
+    query = Q(is_available=True) & Q(price__gt=3.00)
+
+    (Product.objects
+     .filter(query)
+     .update(price=reduction))
+
+    all_available_products = (
+        Product.objects
+        .filter(is_available=True)
+        .order_by('-price',
+                  'name')
+    )
+
+    result = []
+    for product in all_available_products:
+        result.append(
+            f'{product.name}: {product.price}lv.'
+        )
+
+    return '\n'.join(result)
+
+
 # Print sql queries executed
-# print('-' * 100,
+# print('\n',
+#       '-' * 100,
 #       '\n')
 # pprint(connection.queries)
-#
