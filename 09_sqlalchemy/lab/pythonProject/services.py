@@ -3,10 +3,6 @@ from main import Session
 
 
 with Session() as session:
-    new_user = User(
-        username='john_doe',
-        email='john.doe@example.com'
-    )
-
-    session.add(new_user)
-    session.commit()
+    users = session.query(User).all()
+    for user in users:
+        print(user.username, user.email)
