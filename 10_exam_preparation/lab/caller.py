@@ -1,7 +1,7 @@
 # caller.py
 
-from django.db.models import Q, Count, Avg
-from main_app.models import Director, Actor
+from django.db.models import Q, Count, Avg, F
+from main_app.models import Director, Actor, Movie
 
 
 def get_directors(search_name: str = None, search_nationality: str = None) -> str:
@@ -95,3 +95,90 @@ def get_top_actor() -> str:
     movie_titles = ", ".join(movie.title for movie in movies)
 
     return f'Top Actor: {top_actor.full_name}, starring in movies: {movie_titles}, movies average rating: {avg_rating:.1f}'
+
+
+def get_actors_by_movies_count():
+    """
+    Retrieves the top three actors with the highest number of appearances in movies.
+
+    The function first retrieves all actors using the `top_three_actors` custom manager method.
+    It then checks if there are any movies and actors in the database.
+    If either condition is not met, an empty string is returned.
+
+    If actors are found, the function iterates over each actor,
+    appending a formatted string to the `result` list.
+    The string includes the actor's full name and the number of movies they have appeared in.
+
+    Finally, the function joins the `result` list into a single string using newline characters,
+    and returns the formatted string.
+
+    Returns:
+        str: A formatted string containing the top three actors' names and the number of movies they have appeared in.
+             If no actors or movies are found, an empty string is returned.
+    """
+    actors = Actor.objects.top_three_actors()
+
+    if not Movie.objects.all() or not actors:
+        return ''
+
+    result = []
+    for actor in actors:
+        result.append(f"{actor.full_name}, participated in {actor.appearance_count} movies")
+
+    return '\n'.join(result)
+
+
+def get_top_rated_awarded_movie() -> str:
+    """
+    Retrieves the top-rated awarded movie from the database.
+
+    The function filters movies that are awarded and ordered by rating in descending order,
+    then by title in ascending order. It retrieves the first movie from the filtered queryset.
+
+    If no awarded movies are found, the function returns an empty string.
+
+    If a top-rated awarded movie is found, the function extracts the starring actor's name,
+    if available, or assigns 'N/A' if no starring actor is found.
+    It also retrieves the full names of all actors in the movie, ordered by their names.
+
+    The function then constructs and returns a formatted string containing the movie's title,
+    rating, starring actor's name, and the full names of all actors in the movie.
+
+    Returns:
+        str: A formatted string containing the movie's title, rating, starring actor's name,
+             and the full names of all actors in the movie.
+             If no awarded movies are found, an empty string is returned.
+    """
+    top_movie = Movie.objects.filter(is_awarded=True).order_by('-rating', 'title').first()
+
+    if not top_movie:
+        return ""
+
+    starring_actor = top_movie.starring_actor.full_name if top_movie.starring_actor else 'N/A'
+    cast = ', '.join(actor.full_name for actor in top_movie.actors.order_by('full_name'))
+
+    return (f"Top rated awarded movie: {top_movie.title}, "
+            f"rating: {top_movie.rating:.1f}. "
+            f"Starring actor: {starring_actor}. "
+            f"Cast: {cast}.")
+
+
+def increase_rating() -> str:
+    """
+    Increases the rating of classic movies by 0.1.
+
+    This function retrieves all classic movies from the database with a rating less than 10.0.
+    It then updates the rating of each classic movie by adding 0.1 to its current rating.
+    The function returns a string indicating the number of movies whose ratings have been increased.
+
+    Returns:
+        str: A string indicating the number of movies whose ratings have been increased.
+             If no ratings have been increased, the string "No ratings increased." is returned.
+    """
+    classic_movies = Movie.objects.filter(is_classic=True, rating__lt=10.0)
+    updated_count = classic_movies.update(rating=F('rating') + 0.1)
+
+    if updated_count == 0:
+        return "No ratings increased."
+
+    return f"Rating increased for {updated_count} movies."

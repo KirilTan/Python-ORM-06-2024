@@ -5,7 +5,7 @@ from main_app.movie_genre_choices import MovieGenreChoices
 from django.core import validators
 from django.db import models
 
-from main_app.managers import DirectorManager
+from main_app.managers import DirectorManager, ActorManager
 
 
 class Director(Person):
@@ -23,6 +23,11 @@ class Actor(Person, LastUpdatedMixin):
     is_awarded = models.BooleanField(
         default=False,
     )
+
+    objects = ActorManager()
+
+    def __str__(self) -> str:
+        return f'{self.full_name}'
 
 
 class Movie(LastUpdatedMixin):
