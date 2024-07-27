@@ -5,6 +5,8 @@ from main_app.movie_genre_choices import MovieGenreChoices
 from django.core import validators
 from django.db import models
 
+from main_app.managers import DirectorManager
+
 
 class Director(Person):
     years_of_experience = models.SmallIntegerField(
@@ -13,6 +15,8 @@ class Director(Person):
         ],
         default=0,
     )
+
+    objects = DirectorManager()
 
 
 class Actor(Person, LastUpdatedMixin):
