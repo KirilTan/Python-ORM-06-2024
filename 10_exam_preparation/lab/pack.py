@@ -35,7 +35,8 @@ def pack():
                 # Add specific files and directories to the archive
                 if file in ['requirements.txt', 'manage.py', 'caller.py'] \
                         or current_dir in ['main_app', 'orm_skeleton', 'migrations']:
-                    zipf.write(file_path, archive_path)
+                    if 'venv' not in file_path:
+                        zipf.write(file_path, archive_path)
 
     print('Submission created!')
 
