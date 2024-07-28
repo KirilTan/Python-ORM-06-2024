@@ -1,6 +1,6 @@
 import os
 import django
-from django.db.models import Q, Count
+from django.db.models import Q, Count, F
 
 # Set up Django
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "orm_skeleton.settings")
@@ -184,3 +184,98 @@ def get_last_sold_products() -> str:
 
     # Return the formatted string of product names
     return f"Last sold products: {product_names}"
+
+
+def get_top_products() -> str:
+    """
+    Retrieves the top 5 most sold products from the database.
+
+    The function uses Django's ORM to annotate the number of times each product has been sold,
+    filters out products that have not been sold, orders the products by the number of times sold
+    in descending order and alphabetically by name in ascending order, and limits the result to the top 5.
+
+    Returns:
+        str: A string representing the names of the top 5 most sold products.
+             If no products exist, an empty string is returned.
+             The product names are comma-separated and ordered alphabetically.
+    """
+    top_products = (
+        Product.objects
+        .annotate(
+            times_sold=Count('order')
+        )
+        .filter(
+            times_sold__gt=0,
+        )
+        .order_by(
+            '-times_sold',
+            'name',
+        )
+        [:5]
+    )
+
+    if not top_products:
+        return ''
+
+    result = ['Top products:']
+    for product in top_products:
+        result.append(
+            f'{product.name}, sold {product.times_sold} times'
+        )
+    return '\n'.join(result)
+
+
+def apply_discounts() -> str:
+    """
+    Applies a 10% discount to orders with more than 2 products that have not been completed.
+
+    This function uses Django's ORM to annotate the number of products in each order, filters out completed orders,
+    applies a 10% discount to the total price of the eligible orders, and updates the database.
+
+    Returns:
+        str: A message indicating the number of orders to which the discount was applied.
+    """
+    orders_updated_count = (
+        Order.objects
+        .annotate(
+            num_of_products=Count('products')
+        )
+        .filter(
+            num_of_products__gt=2,
+            is_completed=False,
+        )
+        .update(
+            total_price=F('total_price') * 0.9,
+        )
+    )
+
+    return f'Discount applied to {orders_updated_count} orders.'
+
+
+def complete_order() -> str:
+    """
+    Completes the oldest uncompleted order in the database.
+
+    This function retrieves the oldest uncompleted order from the database, marks it as completed,
+    decreases the stock quantity of the associated products by one, and sets the product's availability
+    to False if the stock quantity reaches zero.
+
+    Returns:
+        str: A message indicating that the order has been completed.
+             If no uncompleted orders exist, an empty string is returned.
+    """
+    oldest_order = Order.objects.filter(is_completed=False).order_by('creation_date').first()
+
+    if not oldest_order:
+        return ""
+
+    oldest_order.is_completed = True
+    oldest_order.save()
+
+    for product in oldest_order.products.all():
+        product.in_stock -= 1
+        if product.in_stock == 0:
+            product.is_available = False
+        product.save()
+
+    return "Order has been completed!"
