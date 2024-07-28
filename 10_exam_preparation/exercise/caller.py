@@ -1,5 +1,6 @@
 import os
 import django
+from django.db.models import Q, Count
 
 # Set up Django
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "orm_skeleton.settings")
@@ -79,13 +80,107 @@ def create_order(profile_id, products, total_price):
             f"  --total_price: {total_price}")
 
 
-# # Create some sample data
-# # Create some profiles
-# create_profile("John Doe", "johndoe@example.com", "+359899999999", "123 Main St, City")
-# create_profile("Jane Smith", "janesmith@example.com", "+359899999999", '456 Elm St, City')
-# # Create some products
-# create_product("Product A", "This is Product A.", 19.99, True)
-# create_product("Product B", "This is Product B.", 29.99, False)
-# create_product("Product C", "This is Product C.", 39.99, True)
-# # Create some orders
-# create_order(1, [Product.objects.get(id=1), Product.objects.get(id=2)], 59.98)
+def get_profiles(search_string: str = None) -> str:
+    """
+    Retrieves profiles based on a search string and returns a formatted string of matching profiles.
+
+    Parameters:
+        search_string (str): The string to search for in full name, email, or phone number.
+                             If not provided, all profiles will be returned.
+
+    Returns:
+        str: A newline-separated string of profiles that match the search string.
+            Each profile is represented by its full name, email, phone number, and order count.
+            If no profiles match the search criteria, an empty string is returned.
+    """
+    # If no search string is provided, return an empty string
+    if search_string is None:
+        return ""
+
+    # Get profiles that match the search string in full name, email, or phone number,
+    # and annotate the count of orders for each profile. Order the results by full name.
+    matching_profiles = (
+        Profile.objects.
+        annotate(
+            order_count=Count('orders')
+        )
+        .filter(
+            Q(full_name__icontains=search_string) |
+            Q(email__icontains=search_string) |
+            Q(phone_number__icontains=search_string)
+        ).
+        order_by(
+            'full_name'
+        )
+    )
+
+    # Create return string with newline-separated profiles
+    return_string = []
+    for profile in matching_profiles:
+        return_string.append(
+            f'Profile: {profile.full_name}, '
+            f'email: {profile.email}, '
+            f'phone number: {profile.phone_number}, '
+            f'orders: {profile.order_count}'
+        )
+
+    # Return empty string if no orders fit the search criteria
+    if not return_string:
+        return ''
+
+    # Return formatted string with newline-separated profiles
+    return '\n'.join(return_string)
+
+
+def get_loyal_profiles() -> str:
+    """
+    Retrieves regular customers who have placed more than 2 orders.
+
+    Returns:
+    str: A newline-separated string of loyal profiles and their order counts.
+        Each profile is represented by its full name and the number of orders placed.
+        If no loyal profiles are found, an empty string is returned.
+    """
+    # Get regular customers who have placed more than 2 orders.
+    loyal_profiles = Profile.objects.get_regular_customers()
+
+    # Return an empty string if no loyal profiles found
+    if not loyal_profiles:
+        return ""
+
+    # Create return string with newline-separated loyal profiles and their order counts
+    result = []
+    for profile in loyal_profiles:
+        result.append(
+            f"Profile: {profile.full_name}, "
+            f"orders: {profile.order_count}"
+        )
+
+    # Return formatted string with newline-separated loyal profiles
+    return '\n'.join(result)
+
+
+def get_last_sold_products() -> str:
+    """
+    Retrieves the names of the products sold in the most recent order.
+
+    Returns:
+        str: A string representing the names of the last sold products.
+            If no orders or products exist, an empty string is returned.
+            The product names are comma-separated and ordered alphabetically.
+    """
+    # Retrieve the most recent order
+    latest_order = Order.objects.order_by('-creation_date').first()
+
+    # Check if an order exists and if it has any associated products
+    if not latest_order or not latest_order.products.exists():
+        return ""
+
+    # Retrieve the products associated with the most recent order and order them by name
+    products = latest_order.products.order_by('name')
+
+    # Create a comma-separated string of product names
+    product_names = ', '.join(product.name for product in products)
+
+    # Return the formatted string of product names
+    return f"Last sold products: {product_names}"
