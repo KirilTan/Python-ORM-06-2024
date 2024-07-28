@@ -868,8 +868,9 @@ author_posts = author.post_set.all()
 	session.commit()
       ```
 
-   5.4 Delete
+   5.4 Delete\
        ```py
+   
     	del_stmt = delete(User).where(User.name == 'John')
        ```
 
