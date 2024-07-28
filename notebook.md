@@ -870,7 +870,6 @@ author_posts = author.post_set.all()
 
    5.4 Delete
        ```py
-   
     	del_stmt = delete(User).where(User.name == 'John')
        ```
 
