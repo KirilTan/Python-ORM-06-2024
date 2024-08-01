@@ -12,6 +12,17 @@ from main_app.models import Author
 
 # Create queries within functions
 def get_authors(search_name: str = None, search_email: str = None) -> str:
+    """
+    This function retrieves authors based on the provided search criteria.
+
+    Parameters:
+    search_name (str, optional): The full name of the author to search for. Defaults to None.
+    search_email (str, optional): The email of the author to search for. Defaults to None.
+
+    Returns:
+    str: A formatted string containing the details of the authors that match the search criteria.
+         If no authors are found, an empty string is returned.
+    """
 
     if search_name is None and search_email is None:
         return ''
@@ -39,6 +50,14 @@ def get_authors(search_name: str = None, search_email: str = None) -> str:
 
 
 def get_top_publisher() -> str:
+    """
+    This function retrieves the author with the highest number of published articles.
+
+    Returns:
+    str: A formatted string containing the details of the top author.
+         If no authors or no articles are found, an empty string is returned.
+    """
+
     top_publisher = Author.objects.get_authors_by_article_count().first()
 
     if not top_publisher or top_publisher.num_articles == 0:
@@ -51,6 +70,18 @@ def get_top_publisher() -> str:
 
 
 def get_top_reviewer() -> str:
+    """
+    This function retrieves the author with the highest number of published reviews.
+
+    Parameters:
+    None
+
+    Returns:
+    str: A formatted string containing the details of the top reviewer.
+         If no authors or no reviews are found, an empty string is returned.
+         The string format is: "Top Reviewer: [full_name] with [num_reviews] published reviews."
+    """
+
     top_reviewer = (
         Author.objects
         .annotate(num_reviews=Count('reviews'))
