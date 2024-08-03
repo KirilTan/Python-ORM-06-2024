@@ -2,6 +2,8 @@ from django.core import validators
 from django.db import models
 from django.utils import timezone
 
+from main_app.managers import AstronautManager
+
 
 class Astronaut(models.Model):
     name = models.CharField(
@@ -41,6 +43,8 @@ class Astronaut(models.Model):
     updated_at = models.DateTimeField(
         auto_now=True,
     )
+
+    objects = AstronautManager()
 
 
 class Spacecraft(models.Model):
