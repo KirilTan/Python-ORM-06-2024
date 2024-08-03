@@ -5,7 +5,7 @@ import django
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "orm_skeleton.settings")
 django.setup()
 
-# Import your models here
+# Import the models
 from main_app.models import Astronaut, Spacecraft, Mission
 from django.db.models import Count, Avg, Sum, Q, F, Case, When, Value, FloatField
 
